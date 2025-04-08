@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as  http;
 
 void main() {
   runApp(const MyApp());
@@ -7,6 +8,15 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  Future<String>  fetchScrape() async{
+    final response  = await http.get(Uri.parse("http://<IP_DA_MAQUINA>:8080/scrape"));
+
+    if(response.statusCode==200){
+      return  response.body;
+    }else{
+      return  "Erro:  ${response.statusCode}";
+    }
+  }
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -31,7 +41,21 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: Scaffold(
+        appBar: AppBar(title: const Text("Flutter+Rust scrapper")),
+        body: FutureBuilder(
+          future:fetchScrape(),
+          builder:(context, snapshot){
+            if(snapshot.connectionState==ConnectionState.waiting){
+              return  const Center(child: CircularProgressIndicator());
+            }
+            return  Padding(
+              padding: const  EdgeInsets.all(16.0),
+              child:  Text(snapshot.data.toString())
+            );
+          },
+        ),
+      ) 
     );
   }
 }
