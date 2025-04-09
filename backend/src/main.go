@@ -5,17 +5,25 @@ import(
 	"fmt"
 	"log"
 	"net/http"
-
 	"github.com/PuerkitoBio/goquery"
+	"crypto/tls"
+	"time"
 )
 
 func	scrapeHandler(w	http.ResponseWriter,	r	*http.Request){
+	var	customClient	=	&http.Client{
+		Timeout:	time.Second	*	10,
+		Transport:	&http.Transport{
+			TLSClientConfig:	&tls.Config{InsecureSkipVerify:true},
+		},
+	}
+	
 	url	:=	r.URL.Query().Get("url")
 	if	url	==	""{
 		http.Error(w,"URL not found",http.StatusBadRequest)
 	}
 
-	resp,err	:=	http.Get(url)
+	resp,err	:=	customClient.Get(url)
 	if	err	!=	nil{
 		http.Error(w,	fmt.Sprintf("Error on request: %v",	err),http.StatusInternalServerError)
 		return
