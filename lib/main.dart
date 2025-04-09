@@ -9,7 +9,8 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   Future<String>  fetchScrape() async{
-    final response  = await http.get(Uri.parse("http://<IP_DA_MAQUINA>:8080/scrape"));
+    String    emulatorURL =  "http://10.0.2.2:8080/scrape";
+    final response  = await http.get(Uri.parse(emulatorURL));
 
     if(response.statusCode==200){
       return  response.body;

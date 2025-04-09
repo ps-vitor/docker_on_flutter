@@ -2,33 +2,31 @@ use reqwest;
 use scraper::{Html, Selector};
 use warp::Filter;
 
-fn  scrap(url:  &str){
-    let response=reqwest::blocking::get(url).unwrap();
-    let html_content=response.text().unwrap();
-    
-    let document=Html::parse_document(&html_content);
+fn scrap(url: &str) -> String {
+    let response = reqwest::blocking::get(url).unwrap();
+    let html_content = response.text().unwrap();
+    let document = Html::parse_document(&html_content);
+    let selector = Selector::parse("div.content.clearfix").unwrap();
 
-    let selector=Selector::parse("div.content.clearfix").unwrap();
-
-    if  let Some(div)=document.select(&selector).next(){
-        println!("\n{}\n",  div.text().collect::<String>());
+    // Retornar diretamente o resultado, seja encontrado ou "Not found"
+    if let Some(div) = document.select(&selector).next() {
+        div.text().collect::<String>()
+    } else {
+        "Not found.".to_string()
     }
 }
 
 #[tokio::main]
-async   fn  runserver(){
-    let route   =   warp::path("scrape")
+async fn main() {
+    let url_to_scrap = "https://telemedicina.paginas.ufsc.br/processo-seletivo/".to_string();
+
+    let route = warp::path("scrape")
         .and(warp::get())
-        .map(||{
-            warp::reply::json(&"Resultado do scraping")
+        .map(move || {
+            let data = scrap(&url_to_scrap);
+            warp::reply::json(&data)
         });
 
-    warp::serve(route).run(([0,0,0,0],8080)).await;
-
-}
-
-fn main() {
-    runserver();
-    let url="https://telemedicina.paginas.ufsc.br/processo-seletivo/";
-    scrap(url); 
+    println!("Server runs on http://0.0.0.0:8080/scrape");
+    warp::serve(route).run(([0, 0, 0, 0], 8080)).await;
 }
