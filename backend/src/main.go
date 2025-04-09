@@ -50,6 +50,6 @@ func	scrapeHandler(w	http.ResponseWriter,	r	*http.Request){
 func	main(){
 	http.HandleFunc("/scrape",	scrapeHandler)
 
-	fmt.Println("Server running on http://0.0.0.0>8080/scrape?url=https://...")
+	fmt.Println("Server running on http://0.0.0.0:8080/scrape?url=")
 	log.Fatal(http.ListenAndServe(":8080",nil))
 }
