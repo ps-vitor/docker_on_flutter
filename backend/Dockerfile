@@ -1,17 +1,16 @@
-# Usar a imagem oficial do Rust
-FROM rust:latest
-
-# Definir o diretório de trabalho dentro do container
+FROM rust:latest AS builder
 WORKDIR /app
-
-# Copiar os arquivos do projeto para dentro do container
 COPY . .
-
-# Baixar as dependências e compilar o código
-RUN apt-get update && apt-get install -y pkg-condig libssl-dev
 RUN cargo build --release
 
-EXPOSE  8080
- # Definir o comando de execução do programa
-CMD ["./target/release/rust_web_scraper"]
+# Etapa 2: Container final, menor e mais leve
+FROM debian:buster-slim
 
+# Instala certificados SSL (para HTTPS funcionar)
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Copia o binário compilado da etapa anterior
+COPY --from=builder /app/target/release/rust_web_scraper /usr/local/bin/rust_web_scraper
+
+# Executa o binário ao iniciar o container
+CMD ["rust_web_scraper"]
