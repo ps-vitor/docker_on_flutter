@@ -1,21 +1,19 @@
-FROM golang:1.23 AS builder
+# Etapa de build
+FROM golang:1.24.2 AS builder
 
 WORKDIR /app
 
+# Copia o conteúdo da pasta src (onde está o main.go)
 COPY src/ .
 
-RUN apt-get update && apt-get install -y ca-certificates
+RUN go mod tidy && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o scraper .
 
-RUN go mod init backend && \
-    go get github.com/PuerkitoBio/goquery && \
-    go mod tidy && \
-    CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o scraper main.go
-
+# Etapa final com imagem mínima (sem glibc necessário)
 FROM scratch
 
 WORKDIR /app
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ 
 COPY --from=builder /app/scraper .
 
 EXPOSE 8080

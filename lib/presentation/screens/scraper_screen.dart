@@ -8,14 +8,16 @@ class ScraperScreen extends StatefulWidget {
 
 class _ScraperScreenState extends State<ScraperScreen> {
   final TextEditingController _controller = TextEditingController();
+  final intervalController = TextEditingController();
   String result = "";
 
   void fetchData() async {
     final url = _controller.text.trim();
+    final interval = intervalController.text.trim();
     if (url.isEmpty) return;
 
     final service = ScrapService("10.0.2.2");
-    final response = await service.scrapUrl(url);
+    final response = await service.scrapUrl(url, interval);
 
     setState(() {
       result = response;
@@ -33,6 +35,13 @@ class _ScraperScreenState extends State<ScraperScreen> {
             controller: _controller,
             decoration: InputDecoration(
               labelText: 'URL to scrap',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          TextField(
+            controller: intervalController,
+            decoration: InputDecoration(
+              labelText: 'Interval (seconds)',
               border: OutlineInputBorder(),
             ),
           ),

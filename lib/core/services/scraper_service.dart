@@ -5,16 +5,29 @@ class ScrapService {
   final String ip;
   ScrapService(this.ip);
 
-  Future<String> scrapUrl(String urlToScrap) async {
-    final uri = Uri.parse("http://$ip:8080/scrape?url=$urlToScrap");
+  Future<String> scrapUrl(String urlToScrap, scrapInterval) async {
+    final uri = Uri.parse(
+        "http://$ip:8080/add-job?url=$urlToScrap&interval=$scrapInterval");
+    final scrapUri = Uri.parse("http://$ip:8080/srap?url=$urlToScrap");
+
+    if (urlToScrap.isEmpty || scrapInterval.isEmpty) {
+      return "URL or Interval must be filled";
+    }
 
     try {
-      final response = await http.get(uri);
+      final jobResponse = await http.get(uri);
+      final scrapResponse = await http.get(scrapUri);
+      final message = jsonDecode(scrapResponse.body)['message'];
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
+      if (jobResponse.statusCode >= 200 && jobResponse.statusCode <= 201) {
+        if (scrapResponse.statusCode == 200 ||
+            scrapResponse.statusCode == 201) {
+          return "Job add success";
+        } else {
+          return "Erro: $message";
+        }
       } else {
-        return 'Erro: ${response.statusCode}';
+        return "Erro: $message";
       }
     } catch (e) {
       return 'Error: $e';
