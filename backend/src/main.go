@@ -53,7 +53,7 @@ func scrapePage(url string, ch chan<- ScrapeResult) {
 	ch <- ScrapeResult{URL: url, Text: text}
 }
 
-func scrap(w http.ResponseWriter, r *http.Request) {
+func scrape(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Query().Get("url")
 	if url == "" {
 		http.Error(w, "Missing URL", http.StatusBadRequest)
@@ -108,8 +108,8 @@ func addJobHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/add-job", addJobHandler)
-	http.HandleFunc("/scrap", scrap)
-	fmt.Println("Server running on http://0.0.0.0:8080/scrape?url=")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/scrape", scrape)
+	fmt.Println("Server running on http://192.168.1.14:2080/")
+	log.Fatal(http.ListenAndServe(":2080", nil))
 
 }

@@ -16,7 +16,7 @@ class _ScraperScreenState extends State<ScraperScreen> {
     final interval = intervalController.text.trim();
     if (url.isEmpty) return;
 
-    final service = ScrapService("10.0.2.2");
+    final service = ScrapService("192.168.1.14");
     final response = await service.scrapUrl(url, interval);
 
     setState(() {
